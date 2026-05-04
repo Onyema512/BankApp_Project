@@ -1,20 +1,7 @@
-import React, {useReducer, useEffect}from 'react'
-import { AppContext } from './AppContext';
-
+import React, { useReducer, useEffect } from "react";
+import { AppContext } from "./AppContext";
 
 const initialState = {
-  users: [
-    { name: "Anthony", password: "123456" },
-    { name: "Faith", password: "abcdef" },
-    { name: "Toheeb", password: "ghijkl" },
-    { name: "Daniel", password: "mnopqr" },
-    { name: "Clinton", password: "stuvwx" },
-    { name: "Francis", password: "789011" },
-    { name: "Pelumi", password: "123abc" },
-    { name: "Simi", password: "456def" },
-    { name: "Chibuike", password: "789ghi" },
-    { name: "Maria", password: "011jkl" },
-  ],
   currentUser: null,
   isAuthenticated: false,
 };
@@ -39,11 +26,13 @@ const accountReducer = (state, action) => {
       return state;
   }
 };
-const AppProvider = ({children}) => {
-    const [state, dispatch] = useReducer(accountReducer, initialState);
 
-    useEffect(() => {
+const AppProvider = ({ children }) => {
+  const [state, dispatch] = useReducer(accountReducer, initialState);
+
+  useEffect(() => {
     const savedUser = localStorage.getItem("user");
+
     if (savedUser) {
       dispatch({
         type: "LOGIN_SUCCESS",
@@ -52,20 +41,21 @@ const AppProvider = ({children}) => {
     }
   }, []);
 
-  const logout = () => {
-  localStorage.removeItem("user");
+  const login = (name, password) => {
+    const users = [
+      { name: "Anthony", password: "123456" },
+      { name: "Faith", password: "abcdef" },
+      { name: "Toheeb", password: "ghijkl" },
+      { name: "Daniel", password: "mnopqr" },
+      { name: "Clinton", password: "stuvwx" },
+      { name: "Francis", password: "789011" },
+      { name: "Pelumi", password: "123abc" },
+      { name: "Simi", password: "456def" },
+      { name: "Chibuike", password: "789ghi" },
+      { name: "Maria", password: "011jkl" },
+    ];
 
-  dispatch({
-    type: "LOGOUT",
-  });
-};
-
-     const login = (name, password) => {
-    // if (state.users.length >= 10) {
-    //   return { success: false, message: "Max users reached" };
-    // }
-
-    const foundUser = state.users.find(
+    const foundUser = users.find(
       (user) => user.name === name && user.password === password
     );
 
@@ -73,20 +63,33 @@ const AppProvider = ({children}) => {
       return { success: false, message: "Invalid credentials" };
     }
 
-    localStorage.setItem("user", JSON.stringify(foundUser));
+    const userWithAccount = {
+    ...foundUser, accountNumber: String(1000 + users.indexOf(foundUser) + 1),
+   };
+
+    localStorage.setItem("user", JSON.stringify(userWithAccount));
 
     dispatch({
       type: "LOGIN_SUCCESS",
-      payload: foundUser,
+      payload: userWithAccount,
     });
 
     return { success: true };
   };
+
+  const logout = () => {
+    localStorage.removeItem("user");
+
+    dispatch({
+      type: "LOGOUT",
+    });
+  };
+
   return (
-    <AppContext.Provider value={{...state, login, logout}}>
+    <AppContext.Provider value={{ ...state, login, logout }}>
       {children}
     </AppContext.Provider>
-  )
-}
+  );
+};
 
-export default AppProvider
+export default AppProvider;
